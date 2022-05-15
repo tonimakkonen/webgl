@@ -11,12 +11,7 @@ const tmiKeysDown = new Set();
 const tmiKeyState = new Map();
 
 var tmiMouseDelta = { x: 0, y: 0 }
-var tmiMouseState = {
-  x: 0,
-  y: 0,
-  moveX: 0,
-  moveY: 0
-};
+var tmiMouseState = { x: 0, y: 0, moveX: 0, moveY: 0 };
 
 // Needs to be called to initialize keys
 function tmiInit(element) {
@@ -29,12 +24,19 @@ function tmiInit(element) {
   const canvas = document.querySelector(element);
   if (!canvas || canvas === null) throw 'Could not find element: ' + element;
   canvas.addEventListener('mousemove', e => {
-    console.log('mousemove');
+    tmiMouseDelta.x += e.movementX
+    tmiMouseDelta.y += e.movementY
   });
 }
 
 // Needs to be called once every game loop
 function tmiUpdate() {
+
+  // mouse
+  tmiMouseState.moveX = tmiMouseDelta.x
+  tmiMouseState.moveY = tmiMouseDelta.y
+  tmiMouseDelta.x = 0.0
+  tmiMouseDelta.y = 0.0
 
   // All keys that are not pressed now should be in TMI_RELEASED state or not present at all
   const toRelease = new Set();
@@ -79,5 +81,9 @@ function tmiKeyReleased(code) {
   return tmiKeyState.get(code) === TMI_RELEASED;
 }
 
+function tmiGetMouse() {
+  return tmiMouseState;
+}
 
-export { tmiInit, tmiUpdate, tmiKeyDown, tmiKeyUp, tmiKeyClicked, tmiKeyReleased, tmiMouseState };
+
+export { tmiInit, tmiUpdate, tmiKeyDown, tmiKeyUp, tmiKeyClicked, tmiKeyReleased, tmiMouseState, tmiGetMouse };
