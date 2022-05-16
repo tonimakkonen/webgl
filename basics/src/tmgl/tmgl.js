@@ -1,7 +1,7 @@
 
 "use strict";
 
-import { tmglVertexIdentity, tmglFragmentDummy } from './shaders/tmglshaders.js';
+import { tmglLoadShader, tmglInitShader, tmglVertexIdentity, tmglFragmentDummy } from './shaders/tmglshaders.js';
 
 var tmglGl = null;
 var tmglGeometry = null;
@@ -29,35 +29,19 @@ function tmglInit(element) {
       vertexPosition: tmglGl.getAttribLocation(shaderProgram, 'aVertexPosition'),
     },
     uniformLocations: {
+      posx: tmglGl.getUniformLocation(shaderProgram, 'uPosX'),
+      posy: tmglGl.getUniformLocation(shaderProgram, 'uPosY')
     },
   };
 
   // Load basic geometry objects
   tmglGeometry = tmglInitBuffers(tmglGl);
 
-}
-
-/////////////
-// SHADERS //
-/////////////
-
-function tmglLoadShader(gl, type, source) {
-  const shader = gl.createShader(type);
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(shader);
-  return shader;
-}
-
-function tmglInitShader(gl, vsSource, fsSource) {
-  const vertexShader = tmglLoadShader(gl, gl.VERTEX_SHADER, vsSource);
-  const fragmentShader = tmglLoadShader(gl, gl.FRAGMENT_SHADER, fsSource);
-  const shaderProgram = tmglGl.createProgram();
-  gl.attachShader(shaderProgram, vertexShader);
-  gl.attachShader(shaderProgram, fragmentShader);
-  gl.linkProgram(shaderProgram);
-  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) throw gl.getProgramInfoLog(shaderProgram);
-  return shaderProgram;
+  // Init shit
+  tmglGl.useProgram(tmglProgram.program);
+  tmglGl.bindBuffer(tmglGl.ARRAY_BUFFER, tmglGeometry.position);
+  tmglGl.vertexAttribPointer(tmglProgram.attribLocations.vertexPosition, 2, tmglGl.FLOAT, false, 0, 0);
+  tmglGl.enableVertexAttribArray(tmglProgram.attribLocations.vertexPosition);
 }
 
 // //
@@ -79,37 +63,15 @@ function tmglClear(red, green, blue) {
   tmglGl.clear(tmglGl.COLOR_BUFFER_BIT);
 }
 
-function tmglSquare() {
+// Draw a square
+function tmglSquare(posx, posy) {
+  tmglGl.uniform1f(tmglProgram.uniformLocations.posx, posx);
+  tmglGl.uniform1f(tmglProgram.uniformLocations.posy, posy);
 
-
-
-  // TODO: Should not be on every draw call!!
-  {
-    const numComponents = 2;
-    const type = tmglGl.FLOAT;
-    const normalize = false;
-    const stride = 0;
-    const offset = 0;
-
-    tmglGl.bindBuffer(tmglGl.ARRAY_BUFFER, tmglGeometry.position);
-
-    tmglGl.vertexAttribPointer(
-        tmglProgram.attribLocations.vertexPosition,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-    tmglGl.enableVertexAttribArray(tmglProgram.attribLocations.vertexPosition);
-  }
-
-  // Draw a square with 2 triamgles
-
-  tmglGl.useProgram(tmglProgram.program);
-
+  // The program is already defined
   tmglGl.drawArrays(tmglGl.TRIANGLE_STRIP, 0, 4);
 }
 
 //
 
-export { tmglInit, tmglClear, tmglSquare };
+export { tmglGl, tmglInit, tmglClear, tmglSquare };
