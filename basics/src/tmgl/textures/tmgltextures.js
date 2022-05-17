@@ -9,7 +9,7 @@ function tmglLoadTexture(url) {
   var gl = tmglGl;
 
   const texture = gl.createTexture();
-  // TODO: Not here?
+  // TODO: Do not bind the texture here but when needed
   gl.bindTexture(gl.TEXTURE_2D, texture);
   const level = 0;
   const internalFormat = gl.RGBA;

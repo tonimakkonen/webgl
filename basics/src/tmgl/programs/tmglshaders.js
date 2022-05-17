@@ -2,16 +2,28 @@
 "use strict";
 
 const tmglVertexIdentity = `
-    attribute vec4 aVertexPosition;
+
+    attribute vec2 aVertexPosition;
+    attribute vec2 aTextureCoord;
+
+    varying highp vec2 vTextureCoord;
+
     uniform float uPosX, uPosY;
+
     void main() {
       gl_Position = vec4(aVertexPosition[0] + uPosX, aVertexPosition[1] + uPosY, 0.0, 1.0);
+      vTextureCoord = aTextureCoord;
     }
   `;
 
 const tmglFragmentDummy = `
+
+  varying highp vec2 vTextureCoord;
+
+  uniform sampler2D uSampler;
+
   void main() {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    gl_FragColor = texture2D(uSampler, vTextureCoord);
   }
 `;
 
